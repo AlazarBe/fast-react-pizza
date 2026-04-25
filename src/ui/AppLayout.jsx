@@ -4,19 +4,21 @@ import CartOverview from "../features/cart/CartOverview"
 import { Outlet, useNavigation } from "react-router-dom"
 function AppLayout() {
   const navigation = useNavigation()
-   const isLoading=navigation.state==="loading"
+  const isLoading = navigation.state === "loading"
 
   return (
-    <div className="layout">
-              {isLoading && <Loader/>}
+    <div className="grid h-screen grid-rows-[auto_1fr_auto]">
+      {isLoading && <Loader />}
 
-        <Header/>
-        <main>
-        
-            <Outlet/>
-        </main>
+      <Header />
+      <div className="overflow-scroll ">
+      <main className=" mx-auto max-w-3xl  ">
 
-        <CartOverview />
+        <Outlet />
+      </main>
+      </div>
+
+      <CartOverview />
     </div>
   )
 }

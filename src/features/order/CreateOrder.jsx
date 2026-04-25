@@ -1,5 +1,5 @@
 
-import { Form } from "react-router-dom";
+import { Form, useNavigation } from "react-router-dom";
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -33,6 +33,8 @@ const fakeCart = [
 
 function CreateOrder() {
   // const [withPriority, setWithPriority] = useState(false);
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const cart = fakeCart;
 
   return (
@@ -43,25 +45,31 @@ function CreateOrder() {
       <Form method="POST">
         <div>
           <label>First Name</label>
-          <input type="text" name="customer" required />
+          <input className="input"q type="text" name="customer" required />
         </div>
 
         <div>
           <label>Phone number</label>
           <div>
-            <input type="tel" name="phone" required />
+            <input className="input" type="tel" name="phone" required />
           </div>
         </div>
 
         <div>
           <label>Address</label>
           <div>
-            <input type="text" name="address" required />
+            <input className="input"
+             type="text"
+              name="address"
+               required />
           </div>
         </div>
 
         <div>
-          <input
+          <input className="h-6 w-6 accent-yellow-400  focus:outline-none
+            focus:ring-yellow-500
+            focus:ring
+            focus:ring-offset-2"
             type="checkbox"
             name="priority"
             id="priority"
@@ -73,7 +81,23 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)}/>
-          <button>Order now</button>
+          <button disabled={isSubmitting} className="
+          bg-yellow-400 px-4
+           py-3 font-semibold uppercase 
+           inline-block rounded-full
+            text-stone-800 tracking-wide
+             hover:bg-yellow-300 
+             transition-colors
+              duration-300
+              focus:outline-none 
+              focus:ring
+               focus:ring-yellow-300 
+               focus:ring-offset-2 
+               focus:bg-yellow-300 
+               disabled:cursor-not-allowed 
+              ">
+                {isSubmitting ? "Placing order..." : "Order now"}
+                </button>
         </div>
       </Form>
     </div>
