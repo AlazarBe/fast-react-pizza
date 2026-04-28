@@ -1,12 +1,13 @@
 
 import { Form, useNavigation } from "react-router-dom";
 import Button from "../../ui/Button";
+import { useSelector } from "react-redux";
 
 // https://uibakery.io/regex-library/phone-number
-const isValidPhone = (str) =>
-  /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
-    str
-  );
+// const isValidPhone = (str) =>
+//   /^\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/.test(
+//     str
+//   );
 
 const fakeCart = [
   {
@@ -33,6 +34,9 @@ const fakeCart = [
 ];
 
 function CreateOrder() {
+    const username=useSelector(state=>state.user.username);
+
+
   // const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === "submitting";
@@ -46,7 +50,11 @@ function CreateOrder() {
       <Form method="POST">
         <div className="mb-5 flex  flex-col gap-2 sm:flex-row sm:items-center ">
           <label className="sm:basis-40">First Name</label>
-          <input className="input w-full" type="text" name="customer" required />
+          <input className="input w-full" 
+          type="text" 
+          name="customer"
+           defaultValue={username}
+            required />
         </div>
 
         <div className="mb-5 flex  flex-col gap-2 sm:flex-row sm:items-center ">
@@ -91,8 +99,8 @@ function CreateOrder() {
   );
 }
 export async function action({request}){
-  const formData = request.formData()
-  const data = Object.fromEntries(formData)
+  // const formData = request.formData()
+  // const data = Object.fromEntries(formData)
 
   return null
 }
