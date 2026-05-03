@@ -59,7 +59,7 @@ const initialState = {
         .addCase(fetchAddress.rejected,
           (state,action)=>{
             state.status="error"
-            state.error=action.error.message
+            state.error="There was a problem getting Your Address make sure to fill this field"
           }
         )
   })

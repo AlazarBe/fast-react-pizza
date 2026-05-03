@@ -1,5 +1,5 @@
 
-import { Form, redirect, useNavigation } from "react-router-dom";
+import { Form, redirect, useNavigation, useActionData } from "react-router-dom";
 import Button from "../../ui/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { clearCart, getCart, getTotalCartPrice } from "../cart/cartSlice";
@@ -17,8 +17,14 @@ const isValidPhone = (str) =>
 
 
 function CreateOrder() {
-    const username=useSelector(state=>state.user.username);
-  // const formErrors=useActionData();
+    const {username,
+      status:addressStatus,
+      position,
+      address,
+      error:errorAddress,
+    }=useSelector((state)=>state.user);
+    const isLoadingAddress=addressStatus === "loading"
+  const formErrors=useActionData();
   const dispatch=useDispatch()
 
   const [withPriority, setWithPriority] = useState(false);
@@ -27,14 +33,14 @@ function CreateOrder() {
   const cart = useSelector(getCart);
 
   const totalCartPrice=useSelector(getTotalCartPrice)
-  const priorityPrice=withPriority ? totalCartPrice * 0.20 : 0
+  // const priorityPrice=withPriority ? totalCartPrice * 0.20 : 0
   // const totalPrice=totalCartPrice+priorityPrice
   if(!cart.length) return <EmptyCart />
 
-  return (
+  return ( 
     <div className="px-4 py-6">
       <h2 className="text-xl font-semibold mb-8">Ready to order? Let's go!</h2>
-      <button onClick={()=>dispatch(fetchAddress())} >Get Position</button>
+      
       {/* <Form method="POST" action="/order/new"> */}
       <Form method="POST">
         <div className="mb-5 flex  flex-col gap-2 sm:flex-row sm:items-center ">
@@ -50,18 +56,53 @@ function CreateOrder() {
           <label className="sm:basis-40">Phone number</label>
           <div className="grow">
             <input className="input w-full" type="tel" name="phone" required />
+            {
+              formErrors?.phone && (
+                <p className="mt-2 rounded-md 
+                 bg-red-100 
+                p-2 
+                text-xl 
+                text-red-700">
+                  {formErrors.phone}
+                </p>
+              )
+            }
           </div>
         </div>
    
-        <div className="mb-5 flex  flex-col gap-2 sm:flex-row sm:items-center ">
+        <div className="mb-5 flex  flex-col gap-2 sm:flex-row sm:items-center relative ">
           <label className="sm:basis-40">Address</label>
           <div className="grow">
             <input className="input w-full"
              type="text"
               name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
                required />
+                {
+              addressStatus === "error" && (
+                <p className="mt-2 rounded-md 
+                bg-red-100 
+                p-2 text-xl text-red-700">
+                  {errorAddress}
+                </p>
+              )
+            }
           </div>
+         {!position.latitude && !position.longitude &&
+       (  <span className="absolute right-[3px] top-[3px] z-50 md:right-[3px] md:top-[3px]" >
+          <Button
+           type="small"
+           disabled={isLoadingAddress}
+            onClick={(e)=>{
+              e.preventDefault()
+              dispatch(fetchAddress())
+            }} >
+            Get position
+            </Button>
+         </span>)}
         </div>
+         
 
         <div className="mb-12 flex items-center gap-5">
           <input className="h-6 w-6 accent-yellow-400  focus:outline-none
@@ -79,8 +120,13 @@ function CreateOrder() {
 
         <div>
           <input type="hidden" name="cart" value={JSON.stringify(cart)}/>
-          <Button disabled={isSubmitting}  type="primary">
-                {isSubmitting ? "Placing order..." : `Order now from ${formatCurrency(totalCartPrice)}`}
+
+          <input type="hidden" name="position"
+          value={position.latitude && position.longitude ? `${position.latitude}, ${position.longitude}`: ""} />
+          <Button 
+          disabled={isSubmitting || isLoadingAddress}  type="primary">
+                {isSubmitting ? "Placing order..." : 
+                `Order now from ${formatCurrency(totalCartPrice)}`}
                 </Button>  
         </div>
       </Form>
@@ -96,6 +142,7 @@ export async function action({request}){
     cart: JSON.parse(data.cart),
     priority: data.priority === "true"
   }
+  console.log(order)
  const errors={}
  if(!isValidPhone(order.phone))
    errors.phone="Please give us  your correct phone number, we might need it to contact you"
